@@ -1,5 +1,10 @@
 package com.egecius.mockwebserver_demo;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
@@ -20,17 +25,16 @@ import runner.TestDemoApplication;
 @LargeTest
 public class MainActivityTest {
 
-    public static final String JSON = "{\"login\":\"octocat\",\"followers\":\"1500\"}";
+    private static final String OCTOCAT_BODY = "{\"login\":\"octocat\",\"followers\":\"1500\"}";
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityRule =
-            new ActivityTestRule<>(MainActivity.class);
+            new ActivityTestRule<>(MainActivity.class, true, false);
 
     MockWebServer server = new MockWebServer();
 
     @Before
     public void setup() {
-        setBaseUrl();
     }
 
     private void setBaseUrl() {
@@ -45,10 +49,15 @@ public class MainActivityTest {
     public void firstTest() throws IOException {
         server.start();
 
-        server.enqueue(new MockResponse().setBody(JSON));
+        setBaseUrl();
+
+        server.enqueue(new MockResponse().setBody(OCTOCAT_BODY));
+
+        mActivityRule.launchActivity(null);
+
+        onView(withId(R.id.followers)).check(matches(withText("octocat: 1500")));
 
         server.shutdown();
     }
-
 
 }
