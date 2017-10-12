@@ -5,12 +5,15 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,12 +31,12 @@ public class MainActivityTest {
     private static final String OCTOCAT_BODY = "{\"login\":\"octocat\",\"followers\":\"1500\"}";
 
     @Rule
+    public MockWebServerRule mockWebServerRule = new MockWebServerRule();
+    @Rule
     public ActivityTestRule<MainActivity> activityRule =
             new ActivityTestRule<>(MainActivity.class, true, false);
-    @Rule
-    public MockWebServerRule mockWebServerRule = new MockWebServerRule();
 
-    MockWebServer server = mockWebServerRule.server;
+    private MockWebServer server = mockWebServerRule.server;
 
     @Before
     public void setup() {
@@ -77,6 +80,19 @@ public class MainActivityTest {
 
     private void launchActivity() {
         activityRule.launchActivity(null);
+    }
+
+    @Ignore // for some reason it does not work
+    @Test
+    public void failsOnThrottling() {
+        server.enqueue(
+                new MockResponse()
+                        .setBody(OCTOCAT_BODY)
+                        .throttleBody(1, 1, MILLISECONDS));
+
+        launchActivity();
+
+        onView(withId(R.id.followers)).check(matches(withText("SocketTimeoutException")));
     }
 
 }
