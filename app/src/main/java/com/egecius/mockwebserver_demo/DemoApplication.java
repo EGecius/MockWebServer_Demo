@@ -2,12 +2,14 @@ package com.egecius.mockwebserver_demo;
 
 import android.app.Application;
 
-public abstract class DemoApplication extends Application {
+public class DemoApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
     }
 
-    public abstract String getBaseUrl();
+    public String getBaseUrl() {
+        return "https://api.github.com";
+    }
 }

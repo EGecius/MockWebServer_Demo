@@ -11,7 +11,7 @@ public class RetrofitFactory {
 
     private DemoApplication mApplication;
 
-    ApiService create(DemoApplication application) {
+    public GitHubService create(DemoApplication application) {
         mApplication = application;
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -19,7 +19,7 @@ public class RetrofitFactory {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-       return retrofit.create(ApiService.class);
+       return retrofit.create(GitHubService.class);
 
     }
 

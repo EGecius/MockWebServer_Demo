@@ -1,4 +1,0 @@
-package retrofit;
-
-interface ApiService {
-}
