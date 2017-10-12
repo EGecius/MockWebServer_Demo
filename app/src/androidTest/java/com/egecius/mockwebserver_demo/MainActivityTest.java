@@ -5,6 +5,8 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.junit.Assert.assertEquals;
+
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.support.test.InstrumentationRegistry;
@@ -20,8 +22,10 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
+import okhttp3.Headers;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import runner.TestDemoApplication;
 
 @RunWith(AndroidJUnit4.class)
@@ -53,11 +57,15 @@ public class MainActivityTest {
 
     @Test
     public void mocksSuccessResponse() throws IOException {
-        server.enqueue(new MockResponse().setBody(OCTOCAT_BODY));
+        givenSeverWillReturnSuccess();
 
         launchActivity();
 
         onView(withId(R.id.followers)).check(matches(withText("octocat: 1500")));
+    }
+
+    private void givenSeverWillReturnSuccess() {
+        server.enqueue(new MockResponse().setBody(OCTOCAT_BODY));
     }
 
     @Test
@@ -93,6 +101,23 @@ public class MainActivityTest {
         launchActivity();
 
         onView(withId(R.id.followers)).check(matches(withText("SocketTimeoutException")));
+    }
+
+    @Test
+    public void verifyServerRequest() throws InterruptedException {
+        givenSeverWillReturnSuccess();
+
+        launchActivity();
+
+        RecordedRequest recordedRequest = server.takeRequest();
+        assertEquals("", recordedRequest.getBody().readUtf8());
+        assertEquals("GET /users/octocat HTTP/1.1", recordedRequest.getRequestLine());
+
+        Headers headers = recordedRequest.getHeaders();
+        assertEquals(4, headers.size());
+        assertEquals("gzip", headers.get("Accept-Encoding"));
+        assertEquals("Keep-Alive", headers.get("Connection"));
+        assertEquals("okhttp/3.8.0", headers.get("User-Agent"));
     }
 
 }
