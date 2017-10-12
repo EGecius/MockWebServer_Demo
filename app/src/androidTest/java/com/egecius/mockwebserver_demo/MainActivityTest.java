@@ -104,7 +104,7 @@ public class MainActivityTest {
     }
 
     @Test
-    public void verifyServerRequest() throws InterruptedException {
+    public void verifyRecordedRequest() throws InterruptedException {
         givenSeverWillReturnSuccess();
 
         launchActivity();
@@ -112,6 +112,7 @@ public class MainActivityTest {
         RecordedRequest recordedRequest = server.takeRequest();
         assertEquals("", recordedRequest.getBody().readUtf8());
         assertEquals("GET /users/octocat HTTP/1.1", recordedRequest.getRequestLine());
+        assertEquals("/users/octocat", recordedRequest.getPath());
 
         Headers headers = recordedRequest.getHeaders();
         assertEquals(4, headers.size());
