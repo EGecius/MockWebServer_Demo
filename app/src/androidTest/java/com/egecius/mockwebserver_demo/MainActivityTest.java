@@ -49,12 +49,34 @@ public class MainActivityTest {
     }
 
     @Test
-    public void firstTest() throws IOException {
+    public void mocksSuccessResponse() throws IOException {
         server.enqueue(new MockResponse().setBody(OCTOCAT_BODY));
 
-        activityRule.launchActivity(null);
+        launchActivity();
 
         onView(withId(R.id.followers)).check(matches(withText("octocat: 1500")));
+    }
+
+    @Test
+    public void mocksErrorResponse() {
+        server.enqueue(new MockResponse().setResponseCode(404));
+
+        launchActivity();
+
+        onView(withId(R.id.followers)).check(matches(withText("404")));
+    }
+
+    @Test
+    public void malformedJson() {
+        server.enqueue(new MockResponse().setBody("malformed_json"));
+
+        launchActivity();
+
+        onView(withId(R.id.followers)).check(matches(withText("MalformedJsonException")));
+    }
+
+    private void launchActivity() {
+        activityRule.launchActivity(null);
     }
 
 }
