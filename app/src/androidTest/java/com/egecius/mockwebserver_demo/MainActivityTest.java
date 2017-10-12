@@ -28,13 +28,16 @@ public class MainActivityTest {
     private static final String OCTOCAT_BODY = "{\"login\":\"octocat\",\"followers\":\"1500\"}";
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityRule =
+    public ActivityTestRule<MainActivity> activityRule =
             new ActivityTestRule<>(MainActivity.class, true, false);
+    @Rule
+    public MockWebServerRule mockWebServerRule = new MockWebServerRule();
 
-    MockWebServer server = new MockWebServer();
+    MockWebServer server = mockWebServerRule.server;
 
     @Before
     public void setup() {
+        setBaseUrl();
     }
 
     private void setBaseUrl() {
@@ -47,17 +50,11 @@ public class MainActivityTest {
 
     @Test
     public void firstTest() throws IOException {
-        server.start();
-
-        setBaseUrl();
-
         server.enqueue(new MockResponse().setBody(OCTOCAT_BODY));
 
-        mActivityRule.launchActivity(null);
+        activityRule.launchActivity(null);
 
         onView(withId(R.id.followers)).check(matches(withText("octocat: 1500")));
-
-        server.shutdown();
     }
 
 }
