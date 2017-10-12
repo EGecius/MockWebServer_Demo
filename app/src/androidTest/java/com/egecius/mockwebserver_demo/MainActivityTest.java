@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
@@ -23,6 +24,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 
 import okhttp3.Headers;
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -33,6 +35,7 @@ import runner.TestDemoApplication;
 public class MainActivityTest {
 
     private static final String OCTOCAT_BODY = "{\"login\":\"octocat\",\"followers\":\"1500\"}";
+    private static final String DOG_BODY = "{\"login\":\"dog\",\"followers\":\"1500\"}";
 
     @Rule
     public MockWebServerRule mockWebServerRule = new MockWebServerRule();
@@ -119,6 +122,47 @@ public class MainActivityTest {
         assertEquals("gzip", headers.get("Accept-Encoding"));
         assertEquals("Keep-Alive", headers.get("Connection"));
         assertEquals("okhttp/3.8.0", headers.get("User-Agent"));
+    }
+
+    @Test
+    public void useDispatcherForMockingLogic() {
+        givenWillReturnSuccessWithDispatcher();
+
+        launchActivityWithUser("octocat");
+
+        onView(withId(R.id.followers)).check(matches(withText("octocat: 1500")));
+    }
+
+    private void givenWillReturnSuccessWithDispatcher() {
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+
+                String path = request.getPath();
+                if (path.equals("/users/octocat")) {
+                    return new MockResponse().setBody(OCTOCAT_BODY);
+                } else if (path.equals("/users/dog")) {
+                    return new MockResponse().setBody(DOG_BODY);
+                }
+
+                throw new IllegalArgumentException("not implemented");
+            }
+        });
+    }
+
+    private void launchActivityWithUser(String dog) {
+        Intent intent = new Intent();
+        intent.putExtra(MainActivity.KEY_USER_NAME, dog);
+        activityRule.launchActivity(intent);
+    }
+
+    @Test
+    public void useDispatcherForMockingLogic2() {
+        givenWillReturnSuccessWithDispatcher();
+
+        launchActivityWithUser("dog");
+
+        onView(withId(R.id.followers)).check(matches(withText("dog: 1500")));
     }
 
 }

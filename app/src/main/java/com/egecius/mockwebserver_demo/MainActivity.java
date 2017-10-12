@@ -13,8 +13,11 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String KEY_USER_NAME = "KEY_USER_NAME";
+
     RetrofitFactory mRetrofitFactory = new RetrofitFactory();
     private TextView textView;
+    private String mUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,12 +26,20 @@ public class MainActivity extends AppCompatActivity {
 
         textView = (TextView) findViewById(R.id.followers);
 
+        initUserName();
         callApiService();
+    }
+
+    private void initUserName() {
+        mUserName = getIntent().getStringExtra(KEY_USER_NAME);
+        if (mUserName == null) {
+            mUserName = "octocat";
+        }
     }
 
     private void callApiService() {
         GitHubService gitHubService = mRetrofitFactory.create((DemoApplication) getApplication());
-        gitHubService.getUser("octocat").enqueue(new Callback<User>() {
+        gitHubService.getUser(mUserName).enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
