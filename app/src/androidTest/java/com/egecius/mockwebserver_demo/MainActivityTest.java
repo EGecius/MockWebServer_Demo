@@ -134,6 +134,7 @@ public class MainActivityTest {
     }
 
     private void givenWillReturnSuccessWithDispatcher() {
+        // TODO: 13/10/2017 remove duplication in MockedDataInjector
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {

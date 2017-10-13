@@ -11,6 +11,7 @@ public class TestDemoApplication extends DemoApplication {
         return baseUrl;
     }
 
+    @Override
     public void setBaseUrl(String url) {
         baseUrl = url;
     }
