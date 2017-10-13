@@ -19,7 +19,7 @@ public class DemoApplication extends Application {
 
     private void useMockedDataIfNeeded() {
         if (USE_MOCKED_DATA) {
-            mMockedDataInjector.inject(this);
+            mMockedDataInjector.injectData(this);
         }
     }
 

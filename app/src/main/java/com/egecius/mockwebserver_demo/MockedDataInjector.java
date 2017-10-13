@@ -4,10 +4,7 @@ package com.egecius.mockwebserver_demo;
 import java.io.IOException;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -22,13 +19,10 @@ class MockedDataInjector {
     private final MockWebServer mMockWebServer = new MockWebServer();
 
     /** Injects mocked data into all backend responses */
-    public void inject(final DemoApplication application) {
-        Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(@NonNull CompletableEmitter e) throws Exception {
-                setupServer(application);
-                e.onComplete();
-            }
+    void injectData(final DemoApplication application) {
+        Completable.create(e -> {
+            setupServer(application);
+            e.onComplete();
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
