@@ -3,6 +3,12 @@ package com.egecius.mockwebserver_demo;
 
 import java.io.IOException;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -13,13 +19,25 @@ class MockedDataInjector {
     private static final String OCTOCAT_BODY = "{\"login\":\"octocat\",\"followers\":\"1500\"}";
     private static final String DOG_BODY = "{\"login\":\"dog\",\"followers\":\"1500\"}";
 
-    final MockWebServer mMockWebServer = new MockWebServer();
-
+    private final MockWebServer mMockWebServer = new MockWebServer();
 
     /** Injects mocked data into all backend responses */
-    public void inject(DemoApplication demoApplication) {
+    public void inject(final DemoApplication application) {
+        Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(@NonNull CompletableEmitter e) throws Exception {
+                setupServer(application);
+                e.onComplete();
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+    }
+
+    private void setupServer(DemoApplication application) {
         startServer();
-        passBaseUrl(demoApplication);
+        passBaseUrl(application);
         mockResponses();
     }
 
