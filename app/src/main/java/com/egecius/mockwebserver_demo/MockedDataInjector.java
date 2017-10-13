@@ -1,7 +1,11 @@
 package com.egecius.mockwebserver_demo;
 
 
+import android.content.Context;
+import android.util.Log;
+
 import java.io.IOException;
+import java.io.InputStream;
 
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -13,13 +17,16 @@ import okhttp3.mockwebserver.RecordedRequest;
 
 class MockedDataInjector {
 
-    private static final String OCTOCAT_BODY = "{\"login\":\"octocat\",\"followers\":\"1500\"}";
-    private static final String DOG_BODY = "{\"login\":\"dog\",\"followers\":\"1500\"}";
+    public static final String TAG = MockedDataInjector.class.getSimpleName();
+
 
     private final MockWebServer mMockWebServer = new MockWebServer();
+    private Context context;
 
     /** Injects mocked data into all backend responses */
     void injectData(final DemoApplication application) {
+        context = application.getApplicationContext();
+
         Completable.create(e -> {
             setupServer(application);
             e.onComplete();
@@ -54,13 +61,43 @@ class MockedDataInjector {
 
                 String path = request.getPath();
                 if (path.equals("/users/octocat")) {
-                    return new MockResponse().setBody(OCTOCAT_BODY);
+                    return new MockResponse().setBody(readOctocatBody());
                 } else if (path.equals("/users/dog")) {
-                    return new MockResponse().setBody(DOG_BODY);
+                    return new MockResponse().setBody(readDogBody());
                 }
 
                 throw new IllegalArgumentException("not implemented");
             }
         });
+    }
+
+    private String readDogBody() {
+        return readFromFile("dog_body.json");
+    }
+
+    private String readOctocatBody() {
+        return readFromFile("octocat_body.json");
+    }
+
+    private String readFromFile(String filename) {
+
+        Log.i(TAG, "readFromFile filename " + filename);
+
+        try {
+            InputStream is = context.getAssets().open(filename);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+
+            String string = new String(buffer);
+
+            Log.i(TAG, "readFromFile string " + string);
+
+            return string;
+
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

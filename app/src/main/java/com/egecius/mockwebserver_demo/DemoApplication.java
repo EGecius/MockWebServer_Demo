@@ -24,7 +24,6 @@ public class DemoApplication extends Application {
     }
 
     public String getBaseUrl() {
-
         return baseUrl;
     }
 
