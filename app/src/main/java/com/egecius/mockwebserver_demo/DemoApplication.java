@@ -2,7 +2,7 @@ package com.egecius.mockwebserver_demo;
 
 import android.app.Application;
 
-public abstract class DemoApplication extends Application {
+public class DemoApplication extends Application {
 
     boolean USE_MOCKED_DATA = true;
 
