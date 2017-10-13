@@ -8,4 +8,5 @@
     android:layout_gravity="center"
     android:textSize="18sp"
     android:typeface="monospace"
+    tools:text="followers : 1500"
     tools:context=".MainActivity"/>
